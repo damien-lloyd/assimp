@@ -3,6 +3,7 @@ package assimp
 //#cgo linux LDFLAGS: -L/usr/local/lib -lassimp -lstdc++
 //#include <assimp/types.h>
 import "C"
+import "github.com/go-gl/mathgl/mgl32"
 
 type Plane C.struct_aiPlane
 type Ray C.struct_aiRay
@@ -100,6 +101,10 @@ func (v *Vector3) Values() [3]float32 {
 	return [3]float32{float32(v.x), float32(v.y), float32(v.z)}
 }
 
+func (v *Vector3) Vec3() mgl32.Vec3 {
+	return mgl32.Vec3{float32(v.x), float32(v.y), float32(v.z)}
+}
+
 func (v *Quaternion) W() float32 {
 	return float32(v.x)
 }
@@ -119,6 +124,13 @@ func (v *Quaternion) Z() float32 {
 // order w,x,y,z
 func (q *Quaternion) Values() [4]float32 {
 	return [4]float32{float32(q.w), float32(q.x), float32(q.y), float32(q.z)}
+}
+
+func (q *Quaternion) Quat() mgl32.Quat {
+	return mgl32.Quat{
+		W: float32(q.w),
+		V: mgl32.Vec3{float32(q.x), float32(q.y), float32(q.z)},
+	}
 }
 
 func (c *Color3) R() float32 {
@@ -172,4 +184,14 @@ func (m *Matrix4x4) Values() [4][4]float32 {
 		[4]float32{float32(m.c1), float32(m.c2), float32(m.c3), float32(m.c4)},
 		[4]float32{float32(m.d1), float32(m.d2), float32(m.d3), float32(m.d4)},
 	}
+}
+
+func (m *Matrix4x4) Mat4() mgl32.Mat4 {
+
+	col1 := mgl32.Vec4{float32(m.a1), float32(m.a2), float32(m.a3), float32(m.a4)}
+	col2 := mgl32.Vec4{float32(m.b1), float32(m.b2), float32(m.b3), float32(m.b4)}
+	col3 := mgl32.Vec4{float32(m.c1), float32(m.c2), float32(m.c3), float32(m.c4)}
+	col4 := mgl32.Vec4{float32(m.d1), float32(m.d2), float32(m.d3), float32(m.d4)}
+
+	return mgl32.Mat4FromCols(col1, col2, col3, col4)
 }
